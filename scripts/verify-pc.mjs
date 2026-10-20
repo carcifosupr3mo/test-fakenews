@@ -46,7 +46,7 @@ try {
   // --- prima esecuzione ---
   let a = await launch();
   const title = await a.evalJs('document.title');
-  check('la finestra si apre e carica il gioco', String(title).startsWith('VERIFICA'), `(${title})`);
+  check('la finestra si apre e carica il gioco', String(title).startsWith('Dietro lo Schermo'), `(${title})`);
   check('protocollo file:// (nessun server locale)', (await a.evalJs('location.protocol')) === 'file:');
   check('home visibile', await a.evalJs('!!document.querySelector(".home .titleblock")'));
   check('nessun oggetto di debug esposto', (await a.evalJs('typeof window.__store')) === 'undefined');

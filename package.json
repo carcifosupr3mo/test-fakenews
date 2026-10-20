@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "VERIFICA — La verità dietro lo schermo. Videogioco investigativo su phishing e fake news (PWA iPad + PC).",
+  "description": "Dietro lo Schermo — Un’indagine a Valdorna. Videogioco investigativo su phishing e fake news (PWA iPad + PC).",
   "scripts": {
     "dev": "vite --host --port 5173",
     "build:test": "tsc --noEmit && vite build --mode test",

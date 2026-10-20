@@ -1,4 +1,4 @@
-# VERIFICA — La verità dietro lo schermo
+# Dietro lo Schermo — Un’indagine a Valdorna
 
 Videogioco investigativo su phishing, fake news e sicurezza digitale.
 **iPad = piattaforma principale · PC = ambiente di test.** Un'unica base di codice (TypeScript + PWA).

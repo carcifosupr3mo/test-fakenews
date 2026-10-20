@@ -30,7 +30,7 @@ writeFileSync(path.join(app, 'package.json'), JSON.stringify({ name: 'verifica',
 // Copia di riserva: il gioco come unico file HTML (si apre con Chrome/Edge/Firefox con doppio clic).
 cpSync(html, path.join(folder, 'VERIFICA (solo browser).html'));
 writeFileSync(path.join(folder, 'LEGGIMI.txt'), [
-  'VERIFICA — La verità dietro lo schermo',
+  'Dietro lo Schermo — Un’indagine a Valdorna',
   '',
   'COME GIOCARE',
   '1. Se è uno ZIP: tasto destro → "Estrai tutto…" e apri la cartella estratta.',

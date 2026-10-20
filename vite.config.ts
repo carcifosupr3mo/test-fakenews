@@ -24,8 +24,8 @@ export default defineConfig(({ mode }) => {
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'], navigateFallback: 'index.html' },
       manifest: {
-        name: 'VERIFICA — La verità dietro lo schermo',
-        short_name: 'VERIFICA',
+        name: 'Dietro lo Schermo — Un’indagine a Valdorna',
+        short_name: 'Dietro lo Schermo',
         description: 'Videogioco investigativo su phishing, fake news e sicurezza digitale.',
         lang: 'it',
         start_url: './',

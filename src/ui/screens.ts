@@ -25,7 +25,7 @@ export function welcomeScreen(onStart: () => void): HTMLElement {
     h('div.welcome-guide', { 'aria-hidden': 'true', html: portraitSvg('davide', 'smile') }),
     h('div.welcome-card',
       h('p.eyebrow', 'Prima di cominciare'),
-      h('h1', 'Benvenuta in VERIFICA'),
+      h('h1', 'Benvenuta in «Dietro lo Schermo»'),
       h('p.lead', 'È una storia investigativa. Leggi, scegli, scopri. Non è un esame e non puoi “perdere”: se sbagli, ti spiego con calma cosa è successo.'),
       h('ol.wsteps',
         step('1', 'Leggi la storia', 'Tocca «Avanti» per proseguire, quando hai finito di leggere.'),
@@ -57,8 +57,8 @@ export function homeScreen(): HTMLElement {
     ...scenery('valle'),
     h('header.titleblock',
       h('p.eyebrow', 'Un’indagine in otto capitoli'),
-      h('h1', 'VERIFICA'),
-      h('p.tag', 'La verità dietro lo schermo')),
+      h('h1', 'Dietro lo Schermo'),
+      h('p.tag', 'Un’indagine a Valdorna')),
     h('div.home-cast', { 'aria-hidden': 'true' },
       h('div.hc.l', { html: portraitSvg('marta', 'neutral') }), h('div.hc.r', { html: portraitSvg('davide', 'thinking') })),
     h('nav.menu', { 'aria-label': 'Menu principale' },
@@ -319,7 +319,7 @@ export function settingsScreen(): HTMLElement {
       msg),
     h('section', h('h3', 'Azzera'),
       btn('Cancella tutti i dati del gioco…', () => { if (confirm('Cancellare TUTTI i progressi e i salvataggi su questo dispositivo? Non si può annullare. Prima puoi esportare la partita.')) { clearAll(); store.reset(); applySettings(); nav.home(); } }, 'danger')),
-    h('section', h('h3', 'Informazioni'), h('p.muted', `VERIFICA v${__APP_VERSION__}. Funziona offline, non raccoglie dati e non contatta alcun server. I personaggi e la storia di Valdorna sono inventati; i casi reali sono indicati come tali con la fonte.`)));
+    h('section', h('h3', 'Informazioni'), h('p.muted', `Dietro lo Schermo v${__APP_VERSION__}. Funziona offline, non raccoglie dati e non contatta alcun server. I personaggi e la storia di Valdorna sono inventati; i casi reali sono indicati come tali con la fonte.`)));
 }
 
 export function applySettings() {

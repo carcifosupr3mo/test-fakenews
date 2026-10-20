@@ -8,7 +8,7 @@ if (!app.requestSingleInstanceLock()) app.quit();
 function create() {
   const win = new BrowserWindow({
     width: 1280, height: 860, minWidth: 720, minHeight: 560,
-    title: 'VERIFICA — La verità dietro lo schermo', backgroundColor: '#f4efe6', show: false,
+    title: 'Dietro lo Schermo — Un’indagine a Valdorna', backgroundColor: '#f4efe6', show: false,
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, devTools: false, spellcheck: false },
   });
