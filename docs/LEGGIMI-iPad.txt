@@ -1,0 +1,16 @@
+VERIFICA per iPad - file unico (VERIFICA.html), senza Internet.
+
+ATTENZIONE - LEGGI PRIMA
+Safari e l'anteprima dell'app "File" su iPad di solito NON eseguono gli script dei file HTML locali:
+aprendo il file potresti vedere una pagina vuota o senza pulsanti.
+Questo file NON e' stato provato su un iPad reale.
+
+DA PROVARE (in quest'ordine)
+1. Manda VERIFICA.html all'iPad (AirDrop, Messaggi, chiavetta) e salvalo nell'app File.
+2. Tieni premuto sul file > Condividi > scegli un'app che apre pagine web locali
+   (per esempio "Documents" di Readdle, gratuita).
+3. Se compare la schermata VERIFICA con i pulsanti e "Inizia l'indagine" funziona, e' ok.
+4. I progressi si salvano nell'app usata per aprirlo. Usa Impostazioni > Esporta partita per una copia.
+
+Se non funziona: serve l'installazione come app web (PWA) da un indirizzo https:
+vedi docs/DISTRIBUZIONE.md nel progetto.

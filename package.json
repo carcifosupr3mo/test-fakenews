@@ -1,0 +1,28 @@
+{
+  "name": "verifica",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "VERIFICA — La verità dietro lo schermo. Videogioco investigativo su phishing e fake news (PWA iPad + PC).",
+  "scripts": {
+    "dev": "vite --host --port 5173",
+    "build:test": "tsc --noEmit && vite build --mode test",
+    "build:final": "tsc --noEmit && vite build --mode production",
+    "preview": "vite preview --host --port 4173",
+    "play": "npm run build:final && vite preview --host --port 4173",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "icons": "node scripts/make-icons.mjs",
+    "build:standalone": "tsc --noEmit && vite build --mode standalone",
+    "package:pc": "npm run build:standalone && node scripts/package-pc.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "electron": "^44.9.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0",
+    "vite-plugin-singlefile": "^2.3.4",
+    "vitest": "^5.0.5"
+  }
+}

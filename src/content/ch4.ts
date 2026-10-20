@@ -1,0 +1,161 @@
+import type { Chapter, Node } from '../types';
+import { act, choice, chat, ev, go, ifFlag, label, learn, say, scene } from './helpers';
+
+const nodes: Node[] = [
+  scene('Capitolo 4 — Tutti lo condividono', 'Valdorna · libreria “Il Segnalibro” · mercoledì sera', 'warm', 'libreria'),
+  say('narr', 'La serranda è mezza abbassata. Sul bancone ci sono fogli stampati, pennarelli e una teglia di biscotti che la mamma ha lasciato “per il giornalista”.'),
+  say('marta', 'La mamma mi ripete: «Se lo dicono tutti, sarà vero». Non so come rispondere senza farla sentire sciocca.', 'worried'),
+  say('davide', 'Non devi convincerla che sbaglia. Le fai vedere come è cresciuto. Ho stampato le tre versioni principali: dall’inizio a oggi.'),
+  act('a4_versions'),
+
+  ev('ev_versioni_catena'),
+  say('marta', 'Nessuno ha mentito per forza. Ogni volta qualcuno ha tolto un pezzo, e il messaggio è diventato più forte.', 'thinking'),
+  say('davide', 'È quello che succede. Ogni passaggio perde un po’ di prudenza e guadagna un po’ di certezza. Ma c’è un’altra cosa da separare: chi dice una cosa e chi la ripete.'),
+  learn('effetto-gregge'),
+  act('a4_sort'),
+
+  say('marta', 'Ma allora la mamma ha ragione a spaventarsi: tutti ripetono, nessuno controlla!', 'worried'),
+  say('davide', 'Sì. Ed è per questo che servono persone che controllano senza gridare.'),
+  say('narr', 'Il telefono vibra. È la mamma che ti gira uno screenshot, con tre punti esclamativi.'),
+  chat('Mamma', 'Messaggi', [
+    { from: 'Mamma', text: '[immagine] «Il Comune ha cancellato il suo chiarimento!! Cosa nascondono???»', time: '19:42' },
+    { from: 'Mamma', text: 'Ti prego dimmi che non è vero, sono preoccupata', time: '19:43' },
+  ]),
+  say('davide', 'Segna anche questa. Ma segnala come indizio debole: una cosa sparita può avere dieci spiegazioni, e una sola è quella cattiva.'),
+  ev('ev_post_cancellato'),
+  say('marta', 'Io non ci credo, Davide. Il Comune nasconde qualcosa, la foto è falsa, l’avviso è vecchio, il cugino non esiste. E poi Nicola tutto contento. Mi viene voglia di scrivere due righe nel gruppo e dire cosa penso.', 'hurt'),
+  say('davide', 'Ti racconto una cosa prima. Nel 2017 scrissi che la scuola di Pian Sottile chiudeva. Avevo una fonte sola, e mi sembrava sicura. Era sbagliata.'),
+  say('marta', 'E cosa successe?', 'surprised'),
+  say('davide', 'Il direttore mi fece scrivere la correzione sulla stessa pagina. Dieci giorni di telefonate di genitori arrabbiati. Non è la vergogna che mi ha protetto dopo, è il metodo: quello che ti ho insegnato martedì, ma tutto da capo.'),
+  say('davide', 'Quello che scrivi nel gruppo resta. Pensaci un attimo.'),
+  choice('c4_group', 'Hai il cursore sul gruppo “Valdorna Informa”. Cosa scrivi?', [
+    { text: '«Chi ha messo in giro questa roba dovrebbe vergognarsi. Nicola, prima o poi dovrai spiegare.»', to: 'r4_accuse', set: { accused_nicola: true } },
+    { text: 'Un post calmo con le fonti: avviso del 2019 revocato, controlli di ieri del gestore, ricerca della foto.', to: 'r4_sources', set: { posted_sources: true }, skill: { fonti: 1, metodo: 1 } },
+    { text: 'Non scrivo nel gruppo: mando a Nicola un messaggio privato con le fonti.', to: 'r4_private', set: { private_route: true }, skill: { metodo: 1 } },
+  ], 'Pensa a quello che sai davvero. Ricorda che nel gruppo lo leggono migliaia di persone, e a una di loro potrebbe far male.'),
+
+  label('r4_accuse'),
+  chat('Valdorna Informa', 'Gruppo', [
+    { from: 'Marta Ferri', me: true, text: 'Chi ha messo in giro questa roba dovrebbe vergognarsi. Nicola, prima o poi dovrai spiegare.', time: '20:04' },
+    { from: 'Gianni B.', text: 'Brava Marta!! Il Comune e i suoi amici si nascondono', time: '20:06' },
+    { from: 'Paola R.', text: 'Ma Nicola ha sempre fatto del bene… non esageriamo.', time: '20:07' },
+    { from: 'Nicola Moretti', text: 'Sono sorpreso. Credevo fossimo una comunità.', time: '20:11' },
+  ]),
+  say('narr', 'In dieci minuti il gruppo si spacca. C’è chi ti applaude e chi chiede scusa a Nicola al posto tuo. Nessuno parla più dell’acqua.'),
+  say('davide', 'Hai detto una cosa che non sai: che sia stato lui, e con cattiva intenzione. Quel che sappiamo è un’altra cosa. Si può rimediare, ma meglio farlo presto.'),
+  say('marta', 'Domani gli scrivo e chiedo scusa per il tono.', 'hurt'),
+  go('after_group'),
+
+  label('r4_sources'),
+  chat('Valdorna Informa', 'Gruppo', [
+    { from: 'Marta Ferri', me: true, text: 'Ho controllato: l’avviso è del 2019 (ordinanza n. 14, revocata dopo 5 giorni). Ieri il gestore ha pubblicato controlli nella norma. La foto dell’autobotte è del 2021, in un’altra valle. Link e date nei commenti. Non dico che nessuno sbagli: dico di controllare prima di condividere.', time: '20:04' },
+    { from: 'Paola R.', text: 'Grazie, non lo sapevo. Tolgo la condivisione.', time: '20:09' },
+    { from: 'Gianni B.', text: 'Siete pagati dal Comune?', time: '20:12' },
+  ]),
+  say('narr', 'Qualcuno ringrazia, qualcuno ti attacca. Il tuo post resta lì, con le fonti, per chiunque lo cerchi.'),
+  say('davide', 'Hai dato fatti e fonti, senza attaccare nessuno. Una parte ti ringrazia, una parte ti attacca: è normale. Quello che conta è che ora chi vuole controllare può farlo.'),
+  go('after_group'),
+
+  label('r4_private'),
+  chat('Nicola Moretti', 'Messaggi', [
+    { from: 'Marta', me: true, text: 'Ciao Nicola, ti mando le fonti sull’avviso e sulla foto. Mi piacerebbe parlarne con calma, senza polemiche.', time: '20:04' },
+    { from: 'Nicola Moretti', text: 'Ricevuto. Ci penso.', time: '20:31' },
+  ]),
+  say('narr', 'Nel frattempo, il post continua a girare. Nessuno nel gruppo sa che esistono controlli.'),
+  say('davide', 'Hai evitato di ferire qualcuno, e va bene. Il prezzo è che la correzione, per ora, non la vede nessuno. A volte conviene fare entrambe le cose.'),
+  go('after_group'),
+
+  label('after_group'),
+  ifFlag('nicola_open', 'g_open'),
+  ifFlag('nicola_pride', 'g_pride'),
+  go('g_end'),
+  label('g_open'),
+  say('narr', 'Nel frattempo ricevi un messaggio da Nicola: «Ho pensato a quello che mi hai mostrato. Dammi un paio di giorni».'),
+  go('g_end'),
+  label('g_pride'),
+  say('narr', 'Nicola non risponde. Il suo ultimo messaggio nel gruppo è un laconico «Va bene».'),
+  go('g_end'),
+  label('g_end'),
+  say('marta', 'C’è una cosa che mi inquieta ancora: l’SMS è arrivato anche a mamma, a zia Lina, a Elio. Come hanno fatto a trovarli?', 'thinking'),
+  say('davide', 'Facciamo una prova. Chiama i tuoi: chi ha ricevuto l’SMS, e se ha scritto un commento nel gruppo.'),
+  chat('Messaggi di stasera', 'Messaggi', [
+    { from: 'Zia Lina', text: 'Sì, ricevuto. Non l’ho aperto! Ho scritto un commento nel gruppo, ricordi, ieri.', time: '21:05' },
+    { from: 'Mamma', text: 'Anche a me. Anche io avevo commentato. Perché?', time: '21:07' },
+    { from: 'Elio Marchetti', text: 'Anche a me. Ho commentato per chiedere se era vero. Non sono scemo, non ho cliccato.', time: '21:12' },
+  ]),
+  say('marta', 'Ma io non ho mai scritto nel gruppo e l’SMS l’ho ricevuto lo stesso.', 'surprised'),
+  say('davide', 'Allora il quadro è: tre su quattro avevano commentato, uno no. Può essere una pista, o un caso. Segnamolo come ipotesi.'),
+  ev('ev_destinatari_sms'),
+  learn('ipotesi'),
+  say('marta', 'Quindi non lo so.'),
+  say('davide', 'E dire «non lo so» è già una buona conclusione.'),
+  scene('Una voce', 'Libreria · sera tardi', 'night', 'libreria-cool'),
+  say('narr', 'Il telefono vibra di nuovo. Un vocale da un numero che non conosci: 38 secondi. L’anteprima mostra solo l’onda e una parola: «Sindaco».'),
+  say('marta', 'È la voce di Paolo Greco?', 'surprised'),
+  say('davide', 'Domattina lo ascoltiamo bene, senza panico. Intanto, non girarlo a nessuno.'),
+  { t: 'end', summary: [
+    'Ogni passaggio di un messaggio perde un po’ di cautele e guadagna un po’ di certezza: nessuno deve mentire perché diventi più credibile.',
+    'Le condivisioni contano chi ripete, non chi sa. Distingui la fonte (che dice come l’ha saputo) dall’eco (che ripete).',
+    'Una cosa sparita non dimostra cattive intenzioni: segnala l’indizio come debole e chiedi a chi l’ha tolta.',
+    'Non accusare una persona senza prove: i fatti e le fonti, con calma, di solito convincono di più.',
+    'Dire «non lo so ancora» è una conclusione onesta.',
+  ] },
+];
+
+export const ch4: Chapter = {
+  id: 'ch4', n: 4, title: 'Tutti lo condividono', subtitle: 'Viralità, fonti e disinformazione',
+  goals: ['Ricostruire come un messaggio diventa più credibile', 'Distinguere fonte ed eco', 'Evitare di accusare senza prove'],
+  nodes,
+  activities: {
+    a4_versions: {
+      id: 'a4_versions', kind: 'inspect', variant: 'chat', title: 'Le tre versioni del messaggio',
+      intro: 'Davide ha stampato lo stesso contenuto in tre momenti. Leggi e tocca le parti sottolineate: cerchiamo cosa è cambiato da una versione all’altra.',
+      coach: 'Leggi dall’alto in basso. Tocca le parti sottolineate per vedere cosa si è perso o aggiunto.',
+      header: [
+        { label: 'Versione 1', value: 'domenica 18 ottobre · post di Nicola', h: { title: 'La versione più prudente', why: 'Nicola dice chiaramente di quando si parla e che cosa vuole ricordare. È la versione più vicina al fatto: di certo non è stata scritta per ingannare.', easy: 'La prima versione è quella più onesta e prudente.', signal: false } },
+        { label: 'Versione 2', value: 'screenshot ritagliato, senza data', h: { title: 'Passa solo l’immagine', why: 'Dall’originale resta l’immagine, ma senza il commento di Nicola e senza la data. Chi la riceve non sa più di quando è.', easy: 'Qui si è perso il “quando”.', signal: true } },
+        { label: 'Versione 3', value: 'WhatsApp, lunedì sera', h: { title: 'Compare il “cugino”', why: 'Qui compare una fonte che non si può controllare e un invito a condividere. Dall’origine è cambiata molta certezza.', easy: 'La fonte non si può più rintracciare.', signal: true } },
+      ],
+      body: [
+        [{ x: 'Per ricordare com’è andata l’altra volta (marzo 2019, Borgo Alto), ecco l’avviso. Speriamo non si ripeta.', h: { title: 'Condizionale e data', why: 'Parla di “altra volta”, dice quando e dove, e spera che non si ripeta. Questo linguaggio prudente è quello che andrebbe conservato.', easy: 'Dice quando era successo e non afferma niente di oggi.', signal: false } }],
+        [{ x: '[immagine dell’avviso, tagliata] — «Vi ricordate? Valdorna Informa»', h: { title: 'Scompare la data', why: 'Il ritaglio ha tolto proprio la riga con la data. Il commento non dice più che l’avviso è del 2019. Senza data si legge come una notizia di oggi.', easy: 'Hanno tolto proprio la data.', signal: true } }],
+        ['ATTENZIONE!!! L’acqua di Valdorna è ', { x: 'CONTAMINATA', h: { title: 'Da “speriamo non si ripeta” a “è contaminata”', why: 'La frase è passata da un ricordo a un’affermazione assoluta. Nessun fatto nuovo è stato aggiunto: è cambiato solo il tono.', easy: 'Ora lo afferma come se fosse sicuro.', signal: true } }, '.'],
+        [{ x: 'Me l’ha detto un cugino che lavora all’acquedotto.', h: { title: 'La fonte inventata o irraggiungibile', why: 'Nell’originale non c’era alcun cugino. È un’aggiunta che dà autorevolezza a un messaggio che non l’ha. Nessuno può rintracciarlo.', easy: 'Una persona che non si può trovare.', signal: true } }],
+        [{ x: 'Condividi con tutti prima che sia troppo tardi 🙏', h: { title: 'La richiesta di diffondere', why: 'Nelle prime versioni non c’era. È stata aggiunta per far girare il messaggio: l’urgenza si somma a ogni passaggio.', easy: 'Per far girare più in fretta.', signal: true } }],
+      ],
+      need: 4,
+      question: 'Che cosa è successo a ogni passaggio?',
+      verdicts: [
+        { text: 'Sono spariti la data e le cautele, ed è aumentata la certezza.', ok: true, feedback: 'Esatto. Per far crescere una voce basta togliere qualcosa a ogni passaggio e aggiungere un po’ di sicurezza.' },
+        { text: 'Qualcuno ha cambiato il messaggio di proposito per ingannare.', feedback: 'È possibile, ma non lo possiamo dimostrare. Ogni persona che gira un messaggio può tagliarlo o riassumerlo senza malizia.' },
+        { text: 'Ogni versione è più precisa della precedente.', feedback: 'Sembra più precisa, ma ha perso la data e la fonte. Più sicura non vuol dire più esatta.' },
+      ],
+      hints: [
+        'Confronta le tre versioni: cosa c’era nella prima e non c’è più? Cosa è comparso dopo?',
+        'Nella prima c’erano data e prudenza. Dopo sono comparsi un “cugino”, il maiuscolo e l’invito a condividere.',
+        'Sono spariti la data e le cautele; sono arrivati certezza, un cugino e l’invito a condividere.',
+      ],
+    },
+
+    a4_sort: {
+      id: 'a4_sort', kind: 'sort', title: 'Fonte o eco?',
+      intro: 'Una fonte dice come ha saputo una cosa. Un’eco ripete quello che ha sentito. Metti ogni voce nella casella giusta.',
+      coach: 'Tocca una carta, poi tocca la casella in cui metterla.',
+      prompt: 'Chi sa e chi ripete?',
+      columns: [{ id: 'fonte', label: 'Fonte: dice come l’ha saputo' }, { id: 'eco', label: 'Eco: ripete soltanto' }],
+      items: [
+        { id: 'f1', text: 'Ordinanza n. 14 del Comune (marzo 2019)', answer: 'fonte', why: 'È l’atto originale, con numero e data.' },
+        { id: 'f2', text: 'Controlli del gestore pubblicati ieri', answer: 'fonte', why: 'Il gestore ha fatto i prelievi e dice quando e come.' },
+        { id: 'f3', text: 'Il post “ecco l’avviso” nel gruppo', answer: 'eco', why: 'Ripete un documento: serve a capire il percorso, non a dire se è vero.' },
+        { id: 'f4', text: '2.300 condivisioni', answer: 'eco', why: 'Conta quante persone lo ripetono, non se è vero.' },
+        { id: 'f5', text: 'Commenti «anch’io avevo sentito qualcosa»', answer: 'eco', why: 'Ripetono una voce senza dire da chi.' },
+        { id: 'f6', text: 'Blog “SvegliaValdorna”: «ve lo nascondono!»', answer: 'eco', why: 'Non dice come lo sa: nessun autore, nessuna prova.' },
+      ],
+      hints: [
+        'Chiediti: questa voce dice come sa quello che sa, o lo ripete soltanto?',
+        'Atti ufficiali e controlli con data sono fonti. Condivisioni, commenti e blog anonimi ripetono.',
+        'Fonti: f1, f2. Eco: f3, f4, f5, f6.',
+      ],
+    },
+  },
+};

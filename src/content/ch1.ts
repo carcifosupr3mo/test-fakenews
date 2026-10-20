@@ -1,0 +1,242 @@
+import type { Chapter, Node, Option } from '../types';
+
+const scene = (title: string, place?: string, mood?: 'day' | 'night' | 'warm' | 'cool', art?: string): Node => ({ t: 'scene', title, place, mood, art });
+const say = (who: string, text: string, emo?: string): Node => ({ t: 'say', who, text, emo });
+const label = (id: string): Node => ({ t: 'label', id });
+const go = (to: string): Node => ({ t: 'goto', to });
+const choice = (id: string, prompt: string | undefined, options: Option[]): Node => ({ t: 'choice', id, prompt, options });
+
+const nodes: Node[] = [
+  scene('Capitolo 1 — È vero?', 'Valdorna · libreria “Il Segnalibro” · martedì mattina', 'warm', 'libreria'),
+  say('narr', 'Il martedì mattina la libreria è quasi vuota. Fuori la nebbia sale dal fiume, dentro profuma di carta e di caffè.'),
+  say('narr', 'Il telefono vibra sul bancone. Una, due, tre volte. È il gruppo di famiglia.'),
+  { t: 'chat', title: 'Famiglia Ferri 💙', app: 'Messaggi', msgs: [
+    { from: 'Zia Lina', text: '‼️ URGENTE ‼️ Inoltrato più volte', time: '08:12' },
+    { from: 'Zia Lina', text: 'ATTENZIONE!!! L’acqua di Valdorna è CONTAMINATA. Non bere e non cucinare con l’acqua del rubinetto da oggi! Me lo ha detto un cugino che lavora all’acquedotto. Condividi con tutti i tuoi cari prima che sia troppo tardi 🙏', time: '08:12' },
+    { from: 'Mamma', text: 'Marta, ma è vero?? Io ho appena fatto il caffè con l’acqua del rubinetto 😰', time: '08:14' },
+    { from: 'Zia Lina', text: 'Io ho già comprato 12 bottiglie. Meglio prevenire!', time: '08:15' },
+  ] },
+  say('marta', 'Lo stomaco mi si stringe. Se fosse vero? La mamma ha bevuto quel caffè…', 'worried'),
+  say('narr', 'Hai due secondi e un pulsante “Inoltra” a portata di pollice. Cosa fai?'),
+  { t: 'choice', id: 'c1_first', prompt: 'La mamma e la zia aspettano una risposta. Che cosa fai?',
+    help: 'Pensa a cosa faresti davvero. Non c’è una scelta “giusta” da indovinare: qualunque cosa tu scelga, la storia va avanti e ti spiego cosa succede. Se non sai cosa fare, scegli la terza.',
+    options: [
+      { text: 'Giro il messaggio ai miei amici: meglio avvisare tutti.', to: 'r_forward', set: { forwarded_first: true } },
+      { text: 'Scrivo: «Aspettate, controllo prima di dire altro».', to: 'r_pause', set: { paused_first: true }, skill: { metodo: 1 } },
+      { text: 'Non so cosa fare. Aiutami a capirlo.', to: 'r_ignore', set: { ignored_first: true } },
+    ] },
+
+  label('r_forward'),
+  say('narr', 'Il messaggio parte verso quattro amici. Dopo pochi minuti arriva la risposta di Sara: «Ma sei sicura? Chi lo dice?»'),
+  say('marta', 'Non lo so… Non l’ho verificato. Ho solo avuto paura.', 'worried'),
+  say('narr', 'Non c’è nulla di cui vergognarsi: la paura spinge a condividere, ed è proprio per questo che questi messaggi funzionano. Conta quello che fai adesso.'),
+  go('call_davide'),
+
+  label('r_pause'),
+  say('narr', 'Digiti: «Aspettate, controllo prima». Una frase semplice. Hai fermato la catena nel punto in cui passa da te.'),
+  go('call_davide'),
+
+  label('r_ignore'),
+  say('narr', 'Va benissimo non saperlo: nessuno nasce sapendo come si controlla una notizia. Quando non si sa, la cosa migliore è non rispondere a caldo e chiedere a qualcuno che se ne intende.'),
+  say('marta', 'Hai ragione. Chiamo Davide, che lavora in un giornale: lui saprà da dove cominciare.'),
+  go('call_davide'),
+
+  label('call_davide'),
+  scene('Una telefonata', 'Libreria · poco dopo', 'cool', 'libreria-cool'),
+  say('narr', 'Chiami Davide Conti, un vecchio amico che scrive per “La Voce della Valle”. Risponde al terzo squillo.'),
+  say('davide', 'Marta! Se mi chiami alle nove di mattina o hai finito il caffè o è successo qualcosa.', 'smile'),
+  say('marta', 'Sta girando un messaggio sull’acqua contaminata. La mia famiglia è nel panico. Come faccio a sapere se è vero?'),
+  say('davide', 'Non devi sapere tutto di Internet per proteggerti: ti serve un metodo. Sono quattro mosse semplici: Fermati, Guarda, Confronta, Decidi.'),
+  { t: 'learn', term: 'metodo' },
+  say('davide', 'Fermati: niente inoltri, niente risposte a caldo. Guarda: chi lo dice, quando e con quali prove. Confronta: cerca chi può saperlo davvero, per esempio chi gestisce l’acqua. Decidi: solo dopo.'),
+  say('marta', 'Mi dai la risposta tu, però? Tu li conosci, questi giri.', 'thinking'),
+  say('davide', 'Potrei. Ma poi alla prossima voce saresti di nuovo sola. Prova tu: io resto in linea e ti dico se prendi una strada strana.'),
+  say('marta', 'Va bene. Cominciamo dal messaggio.'),
+  { t: 'activity', id: 'a1_chat' },
+
+  scene('Cercare la fonte', 'Libreria · il computer dietro il bancone', 'day', 'scrivania'),
+  say('davide', 'Ottimo. Hai visto: un messaggio può avere tanti campanelli d’allarme ed essere ancora “non verificato”. Sospetto non vuol dire falso. Adesso cerchiamo chi può saperlo davvero: chi gestisce l’acqua e chi ha già scritto di questa storia.'),
+  { t: 'learn', term: 'non-verificato' },
+  { t: 'evidence', id: 'ev_catena' },
+  { t: 'activity', id: 'a2_fact' },
+
+  say('marta', 'Quindi l’avviso esiste davvero… ma è del 2019. E riguardava una sola frazione.', 'surprised'),
+  { t: 'learn', term: 'fuori-contesto' },
+  say('davide', 'Hai scoperto una cosa che confonde molta gente: un documento vero può ingannare se viene mostrato nel momento sbagliato. Succede in tutto il mondo.'),
+  { t: 'case', id: 'squalo' },
+  say('davide', 'Ho aggiunto un caso all’“Archivio dei casi reali”: una foto famosa che ritorna a ogni uragano. Dagli un’occhiata quando vuoi.'),
+  say('marta', 'Mi resta una cosa che non capisco. Come è arrivato un avviso del 2019 a diventare un messaggio di oggi?'),
+  { t: 'activity', id: 'a3_timeline' },
+
+  { t: 'evidence', id: 'ev_filigrana' },
+  say('narr', 'Ingrandisci l’immagine dell’avviso che circola. Nell’angolo, quasi invisibile, c’è una piccola scritta: “Valdorna Informa”.'),
+  say('marta', 'Qualcuno ha ritagliato l’avviso togliendo la data e ci ha messo il suo marchio. Chi?', 'thinking'),
+  say('davide', 'Piano, non saltiamo alle conclusioni: quella scritta dice solo da dove è passata l’immagine, non chi volesse ingannare. Potrebbe essere stato qualcuno in buona fede.'),
+  { t: 'learn', term: 'fonte' },
+
+  scene('Parlare con zia Lina', 'Libreria · telefonata', 'warm', 'supermercato'),
+  say('narr', 'Ora sai abbastanza per rispondere. Zia Lina è ancora al supermercato, tra le bottiglie d’acqua.'),
+  { t: 'if', flag: 'forwarded_first', to: 'fix_forward' },
+  go('talk_lina'),
+
+  label('fix_forward'),
+  say('marta', 'Prima ho mandato il messaggio a quattro amici. Devo dirglielo: è facile rimediare.'),
+  choice('c1_fix', 'Come rimedi con i tuoi amici?', [
+    { text: 'Scrivo ai quattro amici: «Ho inoltrato troppo in fretta. Ho controllato: è un vecchio avviso del 2019, già revocato. Scusate!»', to: 'talk_lina', set: { corrected_forward: true }, skill: { metodo: 1, fonti: 1 } },
+    { text: 'Lo cancello dal mio telefono e non dico niente.', to: 'fix_silent' },
+  ]),
+  label('fix_silent'),
+  say('narr', 'Il messaggio sparisce dal tuo telefono, non da quello di Sara. Qualche ora dopo la sua amica lo inoltra ad altre persone: la catena è andata avanti senza di te.'),
+  say('marta', 'Ho sbagliato a non correggermi. Scrivo a tutti adesso.'),
+  { t: 'set', flags: { corrected_forward: true } },
+  go('talk_lina'),
+
+  label('talk_lina'),
+  say('lina', '(al telefono) Marta! Hai visto il messaggio? Ti ho già tenuto da parte due bottiglie!', 'smile'),
+  choice('c1_lina', 'Zia Lina aspetta una risposta. Come le spieghi che il messaggio non è affidabile?', [
+    { text: '«Zia, hai sbagliato a crederci. Queste cose si controllano!»', to: 'lina_blunt', set: { lina_hurt: true } },
+    { text: '«Zia, hai fatto bene a preoccuparti per noi. Guarda dove ho controllato: è un avviso del 2019, già revocato.»', to: 'lina_kind', set: { lina_trust: true }, skill: { metodo: 1 } },
+    { text: '«Zia, da ora non mandare più niente senza chiedere a me.»', to: 'lina_order', set: { lina_resent: true } },
+  ]),
+  label('lina_blunt'),
+  say('lina', 'Eh… io volevo solo aiutare. Va bene, va bene, sono vecchia e non capisco niente.', 'hurt'),
+  say('narr', 'Silenzio al telefono. Hai ragione nei fatti, ma qualcosa si è incrinato.'),
+  say('marta', 'Non intendevo quello. Ti richiamo dopo, zia.'),
+  go('after_lina'),
+  label('lina_kind'),
+  say('lina', 'Ah, del 2019! Mi ricordo l’acqua di Borgo Alto. Quindi tutto a posto adesso? Ma allora chi l’ha rimesso in giro?', 'surprised'),
+  say('marta', 'È proprio quello che sto cercando di capire, zia. Se vuoi ti insegno a controllare: sono quattro passi.'),
+  say('lina', 'Sì, sì. Le bottiglie le consumerò comunque.'),
+  go('after_lina'),
+  label('lina_order'),
+  say('lina', 'Come, “non inoltrare”? Io l’ho fatto per voi! Va bene, va bene…', 'hurt'),
+  say('narr', 'Zia Lina non è convinta, solo ammutolita. Un divieto, senza un metodo, di solito dura fino al prossimo messaggio.'),
+  go('after_lina'),
+
+  label('after_lina'),
+  scene('Dopo la verifica', 'Libreria · mezzogiorno', 'day', 'libreria-noon'),
+  say('marta', 'Rispondo al gruppo di famiglia, con calma.'),
+  { t: 'chat', title: 'Famiglia Ferri 💙', app: 'Messaggi', msgs: [
+    { from: 'Marta', me: true, text: 'Ho controllato. Il messaggio riprende un avviso vero ma del 2019, riguardava solo Borgo Alto ed è stato revocato dopo 5 giorni. I controlli di ieri sul sito dell’acquedotto sono nella norma. Se sentite altro, fate un fischio prima di inoltrare 😉', time: '12:03' },
+    { from: 'Mamma', text: 'Che sollievo. Grazie tesoro ❤️', time: '12:05' },
+  ] },
+  say('narr', 'Il telefono vibra ancora: un SMS da un numero sconosciuto.'),
+  { t: 'chat', title: 'SMS · +39 349 555 0142', app: 'SMS', msgs: [
+    { from: 'Sconosciuto', text: 'VALDORNA SERVIZI: per il disagio idrico hai diritto a un RIMBORSO sulla bolletta. Richiedilo entro 24 ore: http://valdorna-servizi.rimborso-acqua.example/richiedi', time: '12:20' },
+  ] },
+  say('marta', 'Un rimborso, adesso? Proprio nel giorno in cui tutti parlano dell’acqua…'),
+  say('davide', 'Tienila lì, Marta. Non cliccare. Questa è una storia per un’altra giornata.'),
+  { t: 'evidence', id: 'ev_post_fb' },
+  { t: 'end', summary: [
+    'Un messaggio può avere molti campanelli d’allarme ed essere ancora “non verificato”: né vero né falso, finché non controlli.',
+    'Un documento vero può ingannare se è mostrato nel momento sbagliato: controlla sempre data e luogo.',
+    'La popolarità di un post non è una prova.',
+    'Se hai girato qualcosa di sbagliato, si rimedia con una frase gentile: chi lo fa di solito vuole proteggere qualcuno.',
+  ] },
+];
+
+export const ch1: Chapter = {
+  id: 'ch1', n: 1, title: 'È vero?', subtitle: 'Una notizia preoccupante e le prime verifiche',
+  goals: ['Applicare il metodo Fermati · Guarda · Confronta · Decidi', 'Distinguere “sospetto” da “falso”', 'Riconoscere un documento vero fuori contesto'],
+  nodes,
+  activities: {
+    a1_chat: {
+      id: 'a1_chat', kind: 'inspect', variant: 'chat', title: 'Il messaggio che gira',
+      intro: 'Ecco il messaggio di zia Lina. Leggilo e tocca le parti sottolineate: ognuna ti dirà se è un campanello d’allarme oppure no. Non tutto ciò che sembra strano lo è davvero.',
+      coach: 'Tocca una parte sottolineata, per esempio «URGENTE». Dopo averne guardate un po’, tocca «Ho guardato abbastanza».',
+      header: [
+        { label: 'Da', value: 'Zia Lina (inoltrato)' },
+        { label: 'Quando è stato scritto', value: 'non lo dice', h: { title: 'Nessuna data', why: 'Senza data non puoi sapere se la notizia è di oggi o di anni fa. Chi dà un avviso vero dice sempre quando.', easy: 'Non c’è scritto quando: potrebbe essere vecchio di anni, e tu non lo sapresti.', signal: true } },
+        { label: 'Chi lo ha scritto', value: 'non si sa', h: { title: 'Autore sconosciuto', why: 'Il messaggio è passato di mano in mano: non sai più chi lo ha scritto per primo. È tipico dei messaggi a catena.', easy: 'Nessuno ci mette la faccia: non sai a chi chiedere se è vero.', signal: true } },
+      ],
+      body: [
+        [{ x: '‼️ URGENTE ‼️', h: { title: 'Urgenza e punti esclamativi', why: 'Maiuscole e punti esclamativi servono a farti agire in fretta, prima di controllare. È una fretta messa apposta.', easy: 'Più il messaggio grida, meno ti lascia il tempo di pensare.', signal: true } }],
+        [
+          'ATTENZIONE!!! L’acqua di ',
+          { x: 'Valdorna', h: { title: 'Il nome del paese', why: 'Citare un luogo vero rende il messaggio credibile, ma non lo dimostra. Anche le notizie false usano nomi veri.', easy: 'Il nome del tuo paese fa sembrare tutto più vero, ma non è una prova.', signal: false } },
+          ' è ',
+          { x: 'CONTAMINATA', h: { title: 'Parola in maiuscolo', why: 'Il maiuscolo fa paura. Da solo non è una prova: anche un avviso vero può usare parole forti, ma qui si somma al resto.', easy: 'È scritto in grande per spaventarti.', signal: true } },
+          '. ',
+          { x: 'Non bere e non cucinare con l’acqua del rubinetto', h: { title: 'L’istruzione pratica', why: 'Anche gli avvisi veri danno istruzioni di questo tipo. Da sola non dice se il messaggio è vero: conta chi la dà.', easy: 'Dire «non bere l’acqua» può farlo anche un avviso serio: non basta per capire.', signal: false } },
+          ' da oggi!',
+        ],
+        [
+          { x: 'Me lo ha detto un cugino che lavora all’acquedotto.', h: { title: 'Chi lo dice non si può controllare', why: '“Un cugino” non si può rintracciare. Una persona dell’acquedotto potrebbe saperlo, ma tu non puoi sapere chi sia né cosa abbia detto davvero.', easy: 'È una voce che passa di bocca in bocca: non puoi chiedere a nessuno se è vera.', signal: true } },
+        ],
+        [
+          { x: 'Condividi con tutti i tuoi cari prima che sia troppo tardi 🙏', h: { title: 'Ti chiede di mandarlo a tutti', why: 'Chiedere di diffondere in fretta è la firma dei messaggi a catena: la tua preoccupazione fa girare il messaggio.', easy: 'Il messaggio vive solo se lo mandi ad altri. Per questo te lo chiede.', signal: true } },
+        ],
+        [{ x: 'Inoltrato più volte', h: { title: 'La scritta “Inoltrato più volte”', why: 'Vuol dire che il messaggio è passato da tante persone. Non dice se è vero: dice solo che non si sa da dove è partito.', easy: 'Tante persone l’hanno girato, ma questo non lo rende più vero.', signal: false } }],
+      ],
+      need: 4,
+      question: 'Che cosa fai, adesso, con questo messaggio?',
+      verdicts: [
+        { text: 'Lo credo e lo giro a tutti: cita il nostro paese e sembra preciso.', feedback: 'Capisco il pensiero, ma il nome del paese e le istruzioni precise non provano nulla: un messaggio falso può averli. Qui manca chi lo dice davvero.' },
+        { text: 'Non lo giro e prima controllo chi può saperlo davvero.', ok: true, feedback: 'Ottima idea. Dire «non lo so ancora» è la mossa più solida: non fai girare niente e vai a cercare la fonte giusta.' },
+        { text: 'Dico a tutti che è una bufala.', feedback: 'I campanelli d’allarme sono tanti, ma sospetto non vuol dire falso: potrebbe esserci un fondo di verità. Meglio controllare prima di dire una cosa o l’altra.' },
+      ],
+      hints: [
+        'Guarda cosa manca nel messaggio: c’è una data? c’è un nome? c’è scritto dove controllare?',
+        'Cerca le parti che mettono fretta o che non si possono controllare (come «un cugino»). Attenta: il nome del paese e l’istruzione sull’acqua sembrano importanti, ma da soli non provano niente.',
+        'Campanelli d’allarme: la fretta, il maiuscolo, «un cugino», la richiesta di mandarlo a tutti, nessuna data, nessun autore. La scelta più sicura: non girarlo e controllare prima.',
+      ],
+    },
+    a2_fact: {
+      id: 'a2_fact', kind: 'factcheck', title: 'Controlliamo la notizia',
+      intro: 'Ora cerchiamo conferme. Leggi le fonti qui sotto: per ognuna chiediti chi parla, quando e come lo dimostra. Tieni come prove solo quelle che ti sembrano affidabili.',
+      coach: 'Tocca una fonte per leggerla. Dopo averne lette almeno due, potrai scegliere cosa rispondere.',
+      claim: '«L’acqua di Valdorna è contaminata e oggi non si può bere.»',
+      sources: [
+        { id: 's_comune', name: 'Albo pretorio — Comune di Valdorna', kind: 'Sito del Comune', date: 'Documento del 2019', evidence: 'ev_ordinanza', useful: true,
+          text: ['Ordinanza n. 14 del 14 marzo 2019: divieto temporaneo di uso potabile dell’acqua nella frazione di Borgo Alto, a seguito della rottura di una condotta.', 'Ordinanza n. 15 del 19 marzo 2019: revoca del divieto.'],
+          who: 'Il Comune, con numero di ordinanza.', when: 'Marzo 2019 — non oggi.', proof: 'Atto ufficiale numerato e revocato dopo cinque giorni.',
+          note: 'È un documento vero e serio… ma racconta un fatto di sette anni fa, che riguardava una sola frazione.' },
+        { id: 's_acq', name: 'Valdorna Servizi Idrici — Qualità dell’acqua', kind: 'Chi gestisce l’acqua', date: 'Aggiornato ieri, ore 16:30', evidence: 'ev_controlli', useful: true,
+          text: ['Campionamenti settimanali sui punti di prelievo della rete: tutti i parametri rientrano nei limiti di legge.', 'Nessuna ordinanza di non potabilità in vigore.'],
+          who: 'Il gestore, chi controlla l’acqua davvero.', when: 'Ieri.', proof: 'Tabelle dei parametri con data del prelievo.',
+          note: 'È chi controlla l’acqua davvero, ed è di ieri: risponde alla domanda «oggi».' },
+        { id: 's_voce', name: '«Rotta una condotta a Borgo Alto: acqua non potabile per cinque giorni»', kind: 'Giornale del paese', date: '15 marzo 2019', evidence: 'ev_voce2019', useful: true,
+          text: ['Il giornale racconta la rottura della condotta, il divieto di bere l’acqua a Borgo Alto e le cisterne distribuite agli abitanti.'],
+          who: 'Una testata locale, con firma.', when: 'Marzo 2019.', proof: 'Cita l’ordinanza e le fonti del Comune.',
+          note: 'Racconta quello che hanno detto altri, ma è utile: conferma com’è andata nel 2019.' },
+        { id: 's_fb', name: 'Post nel gruppo “Valdorna Informa”', kind: 'Post sui social', date: 'Due giorni fa', evidence: 'ev_post_fb', useful: false, misleading: true,
+          text: ['«Ci è arrivato questo, dentro è tutto vero!!! CONDIVIDETE!!!» — immagine di un avviso ritagliato, senza data.', '2.300 condivisioni · 640 commenti.'],
+          who: 'Un gruppo, amministrato da una persona non specificata nel post.', when: 'Due giorni fa, ma l’immagine non ha data.', proof: 'Solo una foto ritagliata, senza data né numero di ordinanza.',
+          note: 'Tante condivisioni non sono una prova: la popolarità non misura la verità.' },
+        { id: 's_blog', name: 'SvegliaValdorna.blog', kind: 'Blog anonimo', date: 'senza data', useful: false, misleading: true,
+          text: ['«Ve lo nascondono da anni! L’acqua è avvelenata e il Comune lo sa!»'],
+          who: 'Nessun autore.', when: 'Senza data.', proof: 'Nessuna.',
+          note: 'Accuse pesanti, nessun nome, nessuna prova: è solo un’opinione, non una fonte.' },
+      ],
+      question: 'Alla luce di quello che hai letto, cosa dici a zia Lina?',
+      verdicts: [
+        { text: '«Ha ragione, è vero: l’avviso esiste davvero.»', feedback: 'L’avviso esiste, ma è del 2019 ed è stato revocato. Un documento vero non dice niente sul presente.' },
+        { text: '«È un vecchio avviso vero, rimesso in giro oggi: l’acqua adesso è a posto.»', ok: true, feedback: 'Esatto. È un fondo di verità usato nel momento sbagliato: si chiama «fuori contesto». Hai dato la spiegazione più giusta.' },
+        { text: '«Se lo sono inventato di sana pianta.»', feedback: 'Non proprio: un avviso c’è stato davvero, nel 2019. Dire «inventato» sarebbe a sua volta inesatto.' },
+      ],
+      hints: [
+        'Guarda la data di ogni fonte. Quali parlano di oggi? Quali di tanti anni fa?',
+        'Le fonti più affidabili sono quelle ufficiali (Comune, chi gestisce l’acqua) e il giornale. Il post sui social e il blog non portano prove.',
+        'Tieni come prove: il sito del Comune, chi gestisce l’acqua e il giornale. La risposta più giusta: è un vecchio avviso vero, rimesso in giro oggi.',
+      ],
+    },
+    a3_timeline: {
+      id: 'a3_timeline', kind: 'timeline', title: 'Dal 2019 a oggi',
+      intro: 'Vogliamo capire come questo vecchio avviso è arrivato fino al telefono di zia Lina. Metti gli eventi in ordine: il più vecchio in alto, il più recente in basso.',
+      coach: 'Usa «Su» e «Giù» per spostare ogni riquadro. Quando ti sembra giusto, tocca «Controlla l’ordine».',
+      prompt: 'Com’è nato il messaggio?',
+      items: [
+        { id: 't1', text: 'Il Comune vieta l’acqua potabile a Borgo Alto per la rottura di una condotta.', why: 'Il fatto vero, il 14 marzo 2019.' },
+        { id: 't2', text: 'Il Comune revoca il divieto: l’acqua torna potabile.', why: 'Cinque giorni dopo, il 19 marzo 2019: la storia finisce qui.' },
+        { id: 't3', text: 'Nel gruppo “Valdorna Informa” compare la foto dell’avviso, ritagliata e senza data.', why: 'Due giorni fa: l’avviso riemerge fuori contesto.' },
+        { id: 't4', text: 'Su WhatsApp inizia a girare un messaggio con “me l’ha detto un cugino”.', why: 'Ieri sera: la storia si trasforma, si aggiunge una fonte anonima.' },
+        { id: 't5', text: 'Zia Lina inoltra il messaggio alla famiglia e compra 12 bottiglie.', why: 'Stamattina: la preoccupazione sincera diventa diffusione.' },
+      ],
+      hints: [
+        'Parti dall’avviso originale del Comune: è l’unico che ha una data vera.',
+        'Dopo l’avviso e la revoca, chiediti: quando compare la foto senza data? E quando si aggiunge il “cugino”?',
+        'Ordine: avviso 2019 → revoca → foto senza data nel gruppo → messaggio con il cugino → zia Lina.',
+      ],
+    },
+  },
+};
